@@ -191,39 +191,39 @@ app.get('/api/dashboard', async (req, res) => {
 
     // Find category winners
     const champions = {
-      killKing: allPlayers.reduce((max, p) => 
+      killKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
         p.totalKills > max.totalKills ? p : max
-      )?.playerName || 'N/A',
-      damageKing: allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A' : 'N/A',
+      damageKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
         p.totalDamage > max.totalDamage ? p : max
-      )?.playerName || 'N/A',
-      actualDamageKing: allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A' : 'N/A',
+      actualDamageKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
         p.totalActualDamage > max.totalActualDamage ? p : max
-      )?.playerName || 'N/A',
-      headshotKing: allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A' : 'N/A',
+      headshotKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
         p.avgHeadshotRate > max.avgHeadshotRate ? p : max
-      )?.playerName || 'N/A',
-      assistKing: allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A' : 'N/A',
+      assistKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
         p.totalAssists > max.totalAssists ? p : max
-      )?.playerName || 'N/A',
-      helpUpKing: allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A' : 'N/A',
+      helpUpKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
         p.totalHelpUp > max.totalHelpUp ? p : max
-      )?.playerName || 'N/A',
-      reviveKing: allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A' : 'N/A',
+      reviveKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
         p.totalRevives > max.totalRevives ? p : max
-      )?.playerName || 'N/A',
-      survivalKing: allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A' : 'N/A',
+      survivalKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
         p.totalSurvivalTime > max.totalSurvivalTime ? p : max
-      )?.playerName || 'N/A',
-      healingKing: allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A' : 'N/A',
+      healingKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
         p.totalHealing > max.totalHealing ? p : max
-      )?.playerName || 'N/A',
+      )?.playerName || 'N/A' : 'N/A',
     };
 
     // Find overall leader (sorted by kills DESC)
-    const overallLeader = allPlayers.reduce((max, p) => 
+    const overallLeader = allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
       p.totalKills > max.totalKills ? p : max
-    );
+    ) : null;
 
     res.json({
       totalMatches: count || 0,
