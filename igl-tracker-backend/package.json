@@ -1,0 +1,28 @@
+{
+  "name": "igl-competition-tracker-backend",
+  "version": "1.0.0",
+  "description": "IGL Esports Internal Competition Tracker API",
+  "type": "module",
+  "main": "igl-tracker-backend.js",
+  "scripts": {
+    "start": "node igl-tracker-backend.js",
+    "dev": "nodemon igl-tracker-backend.js"
+  },
+  "keywords": [
+    "esports",
+    "competition",
+    "tracker",
+    "igl"
+  ],
+  "author": "Rahul",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "@supabase/supabase-js": "^2.38.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
