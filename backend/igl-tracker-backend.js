@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 // Initialize Supabase
 const supabase = createClient(
@@ -15,7 +15,14 @@ const supabase = createClient(
 );
 
 // Middleware
-app.use(cors());
+// Update CORS to allow Vercel domain
+app.use(cors({
+  origin: [
+    'http://localhost:3000',  // Local development
+    'https://your-vercel-domain.vercel.app'  // Will add after deployment
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 // Fixed Players
@@ -62,29 +69,45 @@ async function getPlayerAggregates(playerName) {
     .select('*')
     .eq('PlayerName', playerName);
 
-  if (error || !data) {
-    return null;
+  if (error || !data || data.length === 0) {
+    return {
+      playerName,
+      matchesPlayed: 0,
+      totalKills: 0,
+      totalKnockdowns: 0,
+      totalDeaths: 0,
+      totalAssists: 0,
+      totalHeadshots: 0,
+      totalDamage: 0,
+      totalActualDamage: 0,
+      totalHelpUp: 0,
+      totalRevives: 0,
+      totalSurvivalTime: 0,
+      totalHealing: 0,
+      avgHeadshotRate: 0,
+      kdRatio: 0,
+    };
   }
 
   const stats = {
     playerName,
     matchesPlayed: data.length,
-    totalKills: data.reduce((sum, d) => sum + d.Kills, 0),
-    totalKnockdowns: data.reduce((sum, d) => sum + d.Knockdowns, 0),
-    totalDeaths: data.reduce((sum, d) => sum + d.Deaths, 0),
-    totalAssists: data.reduce((sum, d) => sum + d.Assists, 0),
-    totalHeadshots: data.reduce((sum, d) => sum + d.Headshots, 0),
-    totalDamage: data.reduce((sum, d) => sum + d.Damage, 0),
-    totalActualDamage: data.reduce((sum, d) => sum + d.ActualDamage, 0),
-    totalHelpUp: data.reduce((sum, d) => sum + d.HelpUp, 0),
-    totalRevives: data.reduce((sum, d) => sum + d.Revives, 0),
-    totalSurvivalTime: data.reduce((sum, d) => sum + d.SurvivalTime, 0),
-    totalHealing: data.reduce((sum, d) => sum + d.Healing, 0),
+    totalKills: data.reduce((sum, d) => sum + (d.Kills || 0), 0),
+    totalKnockdowns: data.reduce((sum, d) => sum + (d.Knockdowns || 0), 0),
+    totalDeaths: data.reduce((sum, d) => sum + (d.Deaths || 0), 0),
+    totalAssists: data.reduce((sum, d) => sum + (d.Assists || 0), 0),
+    totalHeadshots: data.reduce((sum, d) => sum + (d.Headshots || 0), 0),
+    totalDamage: data.reduce((sum, d) => sum + (d.Damage || 0), 0),
+    totalActualDamage: data.reduce((sum, d) => sum + (d.ActualDamage || 0), 0),
+    totalHelpUp: data.reduce((sum, d) => sum + (d.HelpUp || 0), 0),
+    totalRevives: data.reduce((sum, d) => sum + (d.Revives || 0), 0),
+    totalSurvivalTime: data.reduce((sum, d) => sum + (d.SurvivalTime || 0), 0),
+    totalHealing: data.reduce((sum, d) => sum + (d.Healing || 0), 0),
   };
 
   // Calculate average headshot rate
   stats.avgHeadshotRate = data.length > 0
-    ? (data.reduce((sum, d) => sum + d.HeadshotRate, 0) / data.length)
+    ? (data.reduce((sum, d) => sum + (d.HeadshotRate || 0), 0) / data.length)
     : 0;
 
   // Calculate KD ratio
@@ -99,7 +122,8 @@ async function getPlayerAggregates(playerName) {
 async function getAllPlayersAggregates() {
   const promises = PLAYERS.map(player => getPlayerAggregates(player));
   const results = await Promise.all(promises);
-  return results.filter(r => r !== null);
+  // Don't filter! Return all players even if they have 0 stats
+  return results;
 }
 
 // ===== API ENDPOINTS =====
@@ -191,39 +215,42 @@ app.get('/api/dashboard', async (req, res) => {
 
     // Find category winners
     const champions = {
-      killKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
+      killKing: allPlayers.reduce((max, p) => 
         p.totalKills > max.totalKills ? p : max
-      )?.playerName || 'N/A' : 'N/A',
-      damageKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A',
+      damageKing: allPlayers.reduce((max, p) => 
         p.totalDamage > max.totalDamage ? p : max
-      )?.playerName || 'N/A' : 'N/A',
-      actualDamageKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A',
+      actualDamageKing: allPlayers.reduce((max, p) => 
         p.totalActualDamage > max.totalActualDamage ? p : max
-      )?.playerName || 'N/A' : 'N/A',
-      headshotKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A',
+      headshotKing: allPlayers.reduce((max, p) => 
         p.avgHeadshotRate > max.avgHeadshotRate ? p : max
-      )?.playerName || 'N/A' : 'N/A',
-      assistKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A',
+      assistKing: allPlayers.reduce((max, p) => 
         p.totalAssists > max.totalAssists ? p : max
-      )?.playerName || 'N/A' : 'N/A',
-      helpUpKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A',
+      survivalExpert: allPlayers.reduce((min, p) => 
+        p.totalDeaths < min.totalDeaths ? p : min
+      )?.playerName || 'N/A',
+      helpUpKing: allPlayers.reduce((max, p) => 
         p.totalHelpUp > max.totalHelpUp ? p : max
-      )?.playerName || 'N/A' : 'N/A',
-      reviveKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A',
+      reviveKing: allPlayers.reduce((max, p) => 
         p.totalRevives > max.totalRevives ? p : max
-      )?.playerName || 'N/A' : 'N/A',
-      survivalKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A',
+      survivalKing: allPlayers.reduce((max, p) => 
         p.totalSurvivalTime > max.totalSurvivalTime ? p : max
-      )?.playerName || 'N/A' : 'N/A',
-      healingKing: allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
+      )?.playerName || 'N/A',
+      healingKing: allPlayers.reduce((max, p) => 
         p.totalHealing > max.totalHealing ? p : max
-      )?.playerName || 'N/A' : 'N/A',
+      )?.playerName || 'N/A',
     };
 
     // Find overall leader (sorted by kills DESC)
-    const overallLeader = allPlayers.length > 0 ? allPlayers.reduce((max, p) => 
+    const overallLeader = allPlayers.reduce((max, p) => 
       p.totalKills > max.totalKills ? p : max
-    ) : null;
+    );
 
     res.json({
       totalMatches: count || 0,
@@ -271,6 +298,13 @@ app.get('/api/categories', async (req, res) => {
   try {
     let players = await getAllPlayersAggregates();
 
+    // Ensure all players have all stats
+    players = players.map(p => ({
+      ...p,
+      totalDeaths: p.totalDeaths || 0,
+      avgHeadshotRate: p.avgHeadshotRate || 0,
+    }));
+
     // Create category leaderboards
     const categories = {
       kills: [...players].sort((a, b) => b.totalKills - a.totalKills),
@@ -279,6 +313,12 @@ app.get('/api/categories', async (req, res) => {
       actualDamage: [...players].sort((a, b) => b.totalActualDamage - a.totalActualDamage),
       assists: [...players].sort((a, b) => b.totalAssists - a.totalAssists),
       headshots: [...players].sort((a, b) => b.avgHeadshotRate - a.avgHeadshotRate),
+      deaths: [...players].sort((a, b) => {
+        // Handle cases where deaths might be 0
+        const aDeaths = a.totalDeaths || 0;
+        const bDeaths = b.totalDeaths || 0;
+        return aDeaths - bDeaths; // LOW deaths = HIGH rank
+      }),
       helpUp: [...players].sort((a, b) => b.totalHelpUp - a.totalHelpUp),
       revives: [...players].sort((a, b) => b.totalRevives - a.totalRevives),
       survival: [...players].sort((a, b) => b.totalSurvivalTime - a.totalSurvivalTime),
