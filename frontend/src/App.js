@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
-import { Trophy, Target, Flame, Activity, Users, Award, Clock, Droplet, BarChart3, ChevronDown, Plus, Save, AlertCircle } from 'lucide-react';
+import { Trophy, Activity, Save, AlertCircle } from 'lucide-react';
 
 const API_URL = 'http://localhost:5000/api';
 
