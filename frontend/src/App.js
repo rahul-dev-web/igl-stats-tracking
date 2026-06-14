@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
-import { Trophy, Activity, Save, AlertCircle } from 'lucide-react';
+import { Trophy, Target, Flame, Activity, Users, Award, Clock, Droplet, BarChart3, ChevronDown, Plus, Save, AlertCircle } from 'lucide-react';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://igl-stats-tracking.onrender.com/api';
+const API_URL = 'http://localhost:5000/api';
 
 export default function IGLCompetitionTracker() {
   const [currentPage, setCurrentPage] = useState('entry');
@@ -196,12 +196,17 @@ export default function IGLCompetitionTracker() {
     }
   };
 
-  const formRef = React.useRef(null);
-
   const scrollPositionRef = useRef(0);
+  const animationFrameRef = useRef(null);
+  const formRef = useRef(null);
 
   const handleInputChange = useCallback((field, value) => {
-    // Store scroll position before any state update
+    // Cancel any pending animation frame
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+
+    // Save scroll position BEFORE any state update
     scrollPositionRef.current = window.scrollY;
     
     // Update form data
@@ -209,6 +214,13 @@ export default function IGLCompetitionTracker() {
       ...prev,
       [field]: value,
     }));
+
+    // Schedule scroll restoration AFTER render
+    animationFrameRef.current = requestAnimationFrame(() => {
+      if (window.scrollY !== scrollPositionRef.current) {
+        window.scrollTo(0, scrollPositionRef.current);
+      }
+    });
   }, []);
 
   // Restore scroll position after render if it changed
@@ -586,7 +598,7 @@ export default function IGLCompetitionTracker() {
         <h2 className="text-2xl font-bold text-white mb-6">📈 Overall Leaderboard</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-white text-sm">
-            <thead className="bg-slate-700 border-b-2 border-cyan-500 sticky top-1">
+            <thead className="bg-slate-800 border-b-2 border-cyan-500 sticky top-16">
               <tr>
                 <th className="px-4 py-3 text-left">Rank</th>
                 <th className="px-4 py-3 text-left">Player</th>
@@ -717,7 +729,7 @@ export default function IGLCompetitionTracker() {
           <select
             value={selectedPlayer}
             onChange={(e) => setSelectedPlayer(e.target.value)}
-            className="w-full bg-slate-800 text-white px-4 py-3 rounded border border-slate-600 focus:outline-none focus:border-cyan-500 max-w-md"
+            className="w-full bg-slate-700 text-white px-4 py-3 rounded border border-slate-600 focus:outline-none focus:border-cyan-500 max-w-md"
           >
             {PLAYERS.map(p => (
               <option key={p} value={p}>{p}</option>
