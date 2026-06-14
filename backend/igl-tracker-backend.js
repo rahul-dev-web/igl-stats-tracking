@@ -19,7 +19,7 @@ const supabase = createClient(
 app.use(cors({
   origin: [
     'http://localhost:3000',  // Local development
-    'https://igl-stats-tracking.vercel.app/'  // Will add after deployment
+    'https://igl-stats-tracking.vercel.app'  // Will add after deployment
   ],
   credentials: true
 }));
