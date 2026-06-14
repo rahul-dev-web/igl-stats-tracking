@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
 import { Trophy, Activity, Save, AlertCircle } from 'lucide-react';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://igl-stats-tracking.onrender.com/api';
 
 export default function IGLCompetitionTracker() {
   const [currentPage, setCurrentPage] = useState('entry');
