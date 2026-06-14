@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Trophy, Activity, Save, AlertCircle } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_API_URL || 'https://igl-stats-tracking.onrender.com/api';
@@ -66,8 +66,7 @@ export default function IGLCompetitionTracker() {
     };
 
     fetchDashboard();
-    const interval = setInterval(fetchDashboard, 5000);
-    return () => clearInterval(interval);
+    // ✅ REMOVED: Auto-refresh interval - only fetch once when page loads
   }, [currentPage]);
 
   // ===== FETCH LEADERBOARD DATA =====
@@ -86,8 +85,7 @@ export default function IGLCompetitionTracker() {
     };
 
     fetchLeaderboard();
-    const interval = setInterval(fetchLeaderboard, 5000);
-    return () => clearInterval(interval);
+    // ✅ REMOVED: Auto-refresh interval - only fetch once when page loads
   }, [currentPage]);
 
   // ===== FETCH CATEGORY LEADERBOARDS =====
@@ -106,8 +104,7 @@ export default function IGLCompetitionTracker() {
     };
 
     fetchCategories();
-    const interval = setInterval(fetchCategories, 5000);
-    return () => clearInterval(interval);
+    // ✅ REMOVED: Auto-refresh interval - only fetch once when page loads
   }, [currentPage]);
 
   // ===== FETCH PLAYER PROFILE =====
@@ -126,8 +123,7 @@ export default function IGLCompetitionTracker() {
     };
 
     fetchProfile();
-    const interval = setInterval(fetchProfile, 5000);
-    return () => clearInterval(interval);
+    // ✅ REMOVED: Auto-refresh interval - only fetch once when page loads
   }, [currentPage, selectedPlayer]);
 
   // ===== HANDLE FORM SUBMISSION =====
@@ -196,40 +192,13 @@ export default function IGLCompetitionTracker() {
     }
   };
 
-  const scrollPositionRef = useRef(0);
-  const animationFrameRef = useRef(null);
-  const formRef = useRef(null);
-
+  // ✅ SIMPLIFIED: Direct input change without scroll position tracking
   const handleInputChange = useCallback((field, value) => {
-    // Cancel any pending animation frame
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-    }
-
-    // Save scroll position BEFORE any state update
-    scrollPositionRef.current = window.scrollY;
-    
-    // Update form data
     setFormData(prev => ({
       ...prev,
       [field]: value,
     }));
-
-    // Schedule scroll restoration AFTER render
-    animationFrameRef.current = requestAnimationFrame(() => {
-      if (window.scrollY !== scrollPositionRef.current) {
-        window.scrollTo(0, scrollPositionRef.current);
-      }
-    });
   }, []);
-
-  // Restore scroll position after render if it changed
-  useLayoutEffect(() => {
-    const currentScroll = window.scrollY;
-    if (currentScroll !== scrollPositionRef.current) {
-      window.scrollTo(0, scrollPositionRef.current);
-    }
-  });
 
   // ===== NAVIGATION BAR =====
   const NavBar = () => (
@@ -376,7 +345,7 @@ export default function IGLCompetitionTracker() {
             )}
           </div>
 
-          <form onSubmit={handleSaveMatch} ref={formRef} className="space-y-6">
+          <form onSubmit={handleSaveMatch} className="space-y-6">
             {/* Player Selection */}
             <div className="bg-slate-800 p-6 rounded-lg border border-slate-700">
               <label className="block text-white font-semibold mb-3">Select Player</label>
@@ -598,7 +567,7 @@ export default function IGLCompetitionTracker() {
         <h2 className="text-2xl font-bold text-white mb-6">📈 Overall Leaderboard</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-white text-sm">
-            <thead className="bg-slate-800 border-b-2 border-cyan-500 sticky top-16">
+            <thead className="bg-slate-700 border-b-2 border-cyan-500 sticky top-1">
               <tr>
                 <th className="px-4 py-3 text-left">Rank</th>
                 <th className="px-4 py-3 text-left">Player</th>
@@ -729,7 +698,7 @@ export default function IGLCompetitionTracker() {
           <select
             value={selectedPlayer}
             onChange={(e) => setSelectedPlayer(e.target.value)}
-            className="w-full bg-slate-700 text-white px-4 py-3 rounded border border-slate-600 focus:outline-none focus:border-cyan-500 max-w-md"
+            className="w-full bg-slate-800 text-white px-4 py-3 rounded border border-slate-600 focus:outline-none focus:border-cyan-500 max-w-md"
           >
             {PLAYERS.map(p => (
               <option key={p} value={p}>{p}</option>
