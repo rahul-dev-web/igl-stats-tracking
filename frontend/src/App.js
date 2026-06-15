@@ -323,7 +323,13 @@ export default function IGLCompetitionTracker() {
 
   // ===== DATA ENTRY PAGE =====
   const DataEntry = () => {
-    console.log("DataEntry Render");
+    useEffect(() => {
+  console.log("DataEntry Mounted");
+
+  return () => {
+    console.log("DataEntry Unmounted");
+  };
+}, []);
     return (
       <div
     key="entry-form"
