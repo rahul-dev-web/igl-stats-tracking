@@ -325,7 +325,9 @@ export default function IGLCompetitionTracker() {
   const DataEntry = () => {
     console.log("DataEntry Render");
     return (
-      <div className="space-y-8 pb-8">
+      <div
+    key="entry-form"
+      className="space-y-8 pb-8">
         <div className="max-w-2xl">
           <h2 className="text-2xl font-bold text-white mb-8">📊 Match Data Entry</h2>
 
