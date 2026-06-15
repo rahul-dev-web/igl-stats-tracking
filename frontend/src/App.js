@@ -209,7 +209,7 @@ export default function IGLCompetitionTracker() {
             <Trophy className="w-8 h-8 text-cyan-400" />
             <h1 className="text-2xl font-bold text-white">IGL Competition Tracker</h1>
           </div>
-          <div className="text-sm text-cyan-400 font-semibold">Week: Jun 15-21, 2026</div>
+          <div className="text-sm text-cyan-400 font-semibold">Week: Jun 14-21, 2026</div>
         </div>
 
         <div className="flex gap-2 flex-wrap">
