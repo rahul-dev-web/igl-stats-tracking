@@ -323,6 +323,7 @@ export default function IGLCompetitionTracker() {
 
   // ===== DATA ENTRY PAGE =====
   const DataEntry = () => {
+    console.log("DataEntry Render");
     return (
       <div className="space-y-8 pb-8">
         <div className="max-w-2xl">
