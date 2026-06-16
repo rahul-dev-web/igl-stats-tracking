@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Activity, Save, AlertCircle } from 'lucide-react';
 
 const DataEntry = ({ 
